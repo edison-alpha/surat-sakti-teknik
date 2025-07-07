@@ -11,6 +11,19 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const { user, userRole, signOut } = useAuth();
 
+  const getRoleDisplay = (role: string | null) => {
+    switch (role) {
+      case 'mahasiswa':
+        return 'Mahasiswa';
+      case 'tu':
+        return 'TU';
+      case 'dekan':
+        return 'Dekan';
+      default:
+        return role || 'Unknown';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -34,7 +47,7 @@ const Layout = ({ children }: LayoutProps) => {
                 <CardContent className="p-0">
                   <div className="flex items-center space-x-2 text-sm">
                     <User className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium capitalize">{userRole}</span>
+                    <span className="font-medium">{getRoleDisplay(userRole)}</span>
                   </div>
                 </CardContent>
               </Card>

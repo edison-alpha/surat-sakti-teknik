@@ -37,18 +37,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user role
-          const { data: userData } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-          
-          setUserRole(userData?.role || null);
+          // Get user role from user metadata
+          const userMetadata = session.user.user_metadata;
+          console.log('User metadata:', userMetadata);
+          setUserRole(userMetadata?.role || null);
         } else {
           setUserRole(null);
         }
@@ -58,21 +55,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session);
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        supabase
-          .from('users')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: userData }) => {
-            setUserRole(userData?.role || null);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
+        const userMetadata = session.user.user_metadata;
+        setUserRole(userMetadata?.role || null);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -80,65 +70,79 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signIn = async (username: string, password: string) => {
     try {
-      // First, get user data from our custom users table
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .single();
-
-      if (userError || !userData) {
-        return { error: { message: 'Username atau password salah' } };
-      }
-
-      // For simplicity in this demo, we'll use a basic password check
-      // In production, you should use proper password hashing
+      console.log('Attempting to sign in with username:', username);
+      
+      // Simple password check for demo
       if (password !== '12345') {
         return { error: { message: 'Username atau password salah' } };
       }
 
-      // Create a session by signing in with email (using username as email for demo)
-      const { error } = await supabase.auth.signInWithPassword({
-        email: `${username}@demo.com`,
-        password: 'demo123456' // Demo password for auth
+      // Define demo users with their roles
+      const demoUsers = {
+        '20533324': { role: 'mahasiswa', name: 'Mahasiswa Test', email: 'mahasiswa@test.com' },
+        '205098767': { role: 'tu', name: 'TU Fakultas Teknik', email: 'tu@teknik.ac.id' },
+        '20568965': { role: 'dekan', name: 'Dekan Fakultas Teknik', email: 'dekan@teknik.ac.id' }
+      };
+
+      const userData = demoUsers[username as keyof typeof demoUsers];
+      if (!userData) {
+        return { error: { message: 'Username atau password salah' } };
+      }
+
+      console.log('User data found:', userData);
+
+      // Create a demo session by signing in with a demo email
+      const demoEmail = `${username}@demo.local`;
+      const demoPassword = 'demo123456';
+
+      // Try to sign in first
+      let { error: signInError } = await supabase.auth.signInWithPassword({
+        email: demoEmail,
+        password: demoPassword
       });
 
-      if (error) {
-        // If user doesn't exist in auth, create them
+      if (signInError) {
+        console.log('Sign in failed, trying to sign up:', signInError);
+        // If sign in fails, try to sign up
         const { error: signUpError } = await supabase.auth.signUp({
-          email: `${username}@demo.com`,
-          password: 'demo123456',
+          email: demoEmail,
+          password: demoPassword,
           options: {
             data: {
-              username: userData.username,
+              username: username,
               role: userData.role,
-              full_name: userData.full_name
+              full_name: userData.name
             }
           }
         });
 
         if (signUpError) {
+          console.error('Sign up error:', signUpError);
           return { error: signUpError };
         }
 
-        // Try signing in again
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: `${username}@demo.com`,
-          password: 'demo123456'
+        // Try signing in again after signup
+        const { error: retrySignInError } = await supabase.auth.signInWithPassword({
+          email: demoEmail,
+          password: demoPassword
         });
 
-        if (signInError) {
-          return { error: signInError };
+        if (retrySignInError) {
+          console.error('Retry sign in error:', retrySignInError);
+          return { error: retrySignInError };
         }
       }
 
+      console.log('Successfully signed in');
+      
       toast({
         title: "Login berhasil",
-        description: `Selamat datang, ${userData.full_name}!`,
+        description: `Selamat datang, ${userData.name}!`,
       });
 
       return { error: null };
     } catch (error) {
+      console.error('Login error:', error);
       return { error: { message: 'Terjadi kesalahan sistem' } };
     }
   };

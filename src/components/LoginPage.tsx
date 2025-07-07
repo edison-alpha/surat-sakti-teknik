@@ -19,9 +19,28 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
 
+    console.log('Form submitted with:', { username, password });
+
     const { error } = await signIn(username, password);
     
     if (error) {
+      console.error('Login error:', error);
+      setError(error.message);
+    }
+    
+    setLoading(false);
+  };
+
+  const handleDemoLogin = async (demoUsername: string, demoPassword: string) => {
+    setUsername(demoUsername);
+    setPassword(demoPassword);
+    setLoading(true);
+    setError('');
+
+    const { error } = await signIn(demoUsername, demoPassword);
+    
+    if (error) {
+      console.error('Demo login error:', error);
       setError(error.message);
     }
     
@@ -110,16 +129,28 @@ const LoginPage = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Demo Accounts</CardTitle>
+            <CardDescription className="text-xs">
+              Klik untuk login otomatis
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-xs">
               {demoAccounts.map((account, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="font-medium">{account.role}</span>
-                  <div className="text-right">
-                    <div>Username: {account.username}</div>
-                    <div>Password: {account.password}</div>
+                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                  <div>
+                    <div className="font-medium">{account.role}</div>
+                    <div className="text-gray-600">
+                      {account.username} / {account.password}
+                    </div>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDemoLogin(account.username, account.password)}
+                    disabled={loading}
+                  >
+                    Login
+                  </Button>
                 </div>
               ))}
             </div>
