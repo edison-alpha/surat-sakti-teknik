@@ -14,7 +14,152 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      document_submissions: {
+        Row: {
+          approved_file_url: string | null
+          created_at: string | null
+          dekan_review_notes: string | null
+          dekan_reviewed_at: string | null
+          dekan_reviewed_by: string | null
+          description: string | null
+          id: string
+          status: Database["public"]["Enums"]["document_status"] | null
+          student_id: string
+          submitted_file_url: string
+          template_id: string
+          title: string
+          tu_review_notes: string | null
+          tu_reviewed_at: string | null
+          tu_reviewed_by: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_file_url?: string | null
+          created_at?: string | null
+          dekan_review_notes?: string | null
+          dekan_reviewed_at?: string | null
+          dekan_reviewed_by?: string | null
+          description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["document_status"] | null
+          student_id: string
+          submitted_file_url: string
+          template_id: string
+          title: string
+          tu_review_notes?: string | null
+          tu_reviewed_at?: string | null
+          tu_reviewed_by?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_file_url?: string | null
+          created_at?: string | null
+          dekan_review_notes?: string | null
+          dekan_reviewed_at?: string | null
+          dekan_reviewed_by?: string | null
+          description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["document_status"] | null
+          student_id?: string
+          submitted_file_url?: string
+          template_id?: string
+          title?: string
+          tu_review_notes?: string | null
+          tu_reviewed_at?: string | null
+          tu_reviewed_by?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_submissions_dekan_reviewed_by_fkey"
+            columns: ["dekan_reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_submissions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_submissions_tu_reviewed_by_fkey"
+            columns: ["tu_reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          file_url: string
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          file_url: string
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          file_url?: string
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string
+          id: string
+          password_hash: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          password_hash: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          password_hash?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +168,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      document_status:
+        | "submitted"
+        | "reviewed_by_tu"
+        | "approved_by_tu"
+        | "rejected_by_tu"
+        | "reviewed_by_dekan"
+        | "approved_by_dekan"
+        | "rejected_by_dekan"
+        | "completed"
+      user_role: "mahasiswa" | "tu" | "dekan"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +304,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      document_status: [
+        "submitted",
+        "reviewed_by_tu",
+        "approved_by_tu",
+        "rejected_by_tu",
+        "reviewed_by_dekan",
+        "approved_by_dekan",
+        "rejected_by_dekan",
+        "completed",
+      ],
+      user_role: ["mahasiswa", "tu", "dekan"],
+    },
   },
 } as const
