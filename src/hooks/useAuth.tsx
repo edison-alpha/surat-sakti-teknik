@@ -77,11 +77,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return { error: { message: 'Username atau password salah' } };
       }
 
-      // Define demo users with their roles
+      // Define demo users with their roles and valid emails
       const demoUsers = {
-        '20533324': { role: 'mahasiswa', name: 'Mahasiswa Test', email: 'mahasiswa@test.com' },
-        '205098767': { role: 'tu', name: 'TU Fakultas Teknik', email: 'tu@teknik.ac.id' },
-        '20568965': { role: 'dekan', name: 'Dekan Fakultas Teknik', email: 'dekan@teknik.ac.id' }
+        '20533324': { role: 'mahasiswa', name: 'Mahasiswa Test', email: 'mahasiswa@teknik.demo' },
+        '205098767': { role: 'tu', name: 'TU Fakultas Teknik', email: 'tu@teknik.demo' },
+        '20568965': { role: 'dekan', name: 'Dekan Fakultas Teknik', email: 'dekan@teknik.demo' }
       };
 
       const userData = demoUsers[username as keyof typeof demoUsers];
@@ -91,8 +91,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       console.log('User data found:', userData);
 
-      // Create a demo session by signing in with a demo email
-      const demoEmail = `${username}@demo.local`;
+      // Use the proper email for this user
+      const demoEmail = userData.email;
       const demoPassword = 'demo123456';
 
       // Try to sign in first
